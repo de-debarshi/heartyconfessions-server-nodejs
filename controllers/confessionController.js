@@ -23,12 +23,13 @@ router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
         if (!err) { 
             responseObj.totalPage = Math.ceil(count / limit);
             Confession.find(searchQuery, (err, docs) => {
-                if (!err) { 
+                if (!err) {
+                    //docs = docs.map((doc) => doc.commentCount ? {...doc, commentCount: doc.commentCount} : doc );
                     responseObj.confessionList = docs;
                     res.send(responseObj); 
                 }
                 else { console.log('Error in Retriving Confessions :' + JSON.stringify(err, undefined, 2)); }
-            }).limit(limit).skip(skip);
+            }).select('-comments').limit(limit).skip(skip);
         }
     });
 });
@@ -51,7 +52,8 @@ router.post('/', (req, res) => {
         status: 'approved',
         categories: req.body.categories,
         likes: 0,
-        comments : []
+        comments : [],
+        commentCount : 0
     });
     confsn.save((err, doc) => {
         if (!err) { res.send(doc); }
@@ -87,7 +89,14 @@ router.post('/comment', (req, res) => {
         comment : req.body.comment
     };
     Confession.findByIdAndUpdate(req.body._id, { $push: {comments:newComment} }, { new: true }, (err, doc) => {
-        if (!err) { res.send(doc); }
+        if (!err) {
+            var commentCount = doc.comments.length;
+            Confession.findByIdAndUpdate(req.body._id, { $set: {commentCount: commentCount} }, { new: true }, (err, doc) => {
+                if (!err) { res.send(doc); }
+                else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
+            });
+            //res.send(doc);
+        }
         else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
     });
 });

@@ -10,8 +10,13 @@ const confessionSchema = new mongoose.Schema({
     status: { type: String },
     categories: [ String ],
     likes: { type: Number },
-    comments : [commentSchema]
+    comments : [commentSchema],
+    commentCount: { type: Number }
 }, {timestamps: true});
+/* confessionSchema.virtual('commentCountCalculate').get(function() {
+    if(this.comments)
+    return this.comments.length;
+}); */
 var Confession = mongoose.model('Confession', confessionSchema);
 
 module.exports = { Confession };
