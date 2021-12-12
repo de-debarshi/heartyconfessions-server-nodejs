@@ -1,0 +1,22 @@
+{
+    "development": {
+        "PORT": 3000,
+        "MONGODB_URI": "mongodb://localhost:27017/local-dev",
+        "JWT_SECRET": "SECRET#123",
+        "JWT_EXP": "10m",
+        "WEBSITE_URL": "http://localhost:4200/",
+        "MAIL_FROM": "'Hearty Confessions 👻' <heartyconfessions@gmail.com>",
+        "SMTP_AUTH_USER" : "nightrider.utuber@gmail.com",
+        "SMTP_AUTH_PASSWORD" : "sswhncusekfjapfq"
+    },
+    "production": {
+        "PORT": 3000,
+        "MONGODB_URI": "mongodb+srv://dde:Creed23%21@hc-cluster-0.nrv32.mongodb.net/HC-DEV?retryWrites=true&w=majority",
+        "JWT_SECRET": "SECRET#123",
+        "JWT_EXP": "7d",
+        "WEBSITE_URL": "https://pubgmobileindia.info/",
+        "MAIL_FROM": "'Hearty Confessions 👻' <heartyconfessions@gmail.com>",
+        "SMTP_AUTH_USER" : "nightrider.utuber@gmail.com",
+        "SMTP_AUTH_PASSWORD" : "sswhncusekfjapfq"
+    }
+}
