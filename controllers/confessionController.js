@@ -13,8 +13,9 @@ router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
         confessionList : null
     };
     var searchQuery;
-    if(req.params.category && req.params.category !== 'undefined' && req.params.category !== 'All') {
-        searchQuery = { status: 'approved' , categories: req.params.category};
+    var categoriesSelected = req.params.category;
+    if(categoriesSelected && categoriesSelected !== 'undefined' && categoriesSelected !== 'Any' && categoriesSelected !== 'null') {
+        searchQuery = { status: 'approved' , categories: categoriesSelected};
     } else {
         searchQuery = { status: 'approved'};
     }
