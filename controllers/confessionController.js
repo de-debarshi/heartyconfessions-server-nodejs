@@ -6,7 +6,7 @@ const { Confession } = require('../models/confession');
 
 // => localhost:3000/confession/
 router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
-    var limit = 6;
+    var limit = 10;
     var skip = (req.params.pageNumber-1) * limit;
     var responseObj = {
         totalPage : null,
@@ -52,9 +52,16 @@ router.post('/', (req, res) => {
         content: req.body.content,
         status: 'approved',
         categories: req.body.categories,
-        likes: 0,
+        reactions: {
+            like : 0,
+            dislike : 0,
+            sad : 0,
+            angry : 0,
+            funny: 0
+        },
         comments : [],
-        commentCount : 0
+        commentCount : 0,
+        reactionCount : 0
     });
     confsn.save((err, doc) => {
         if (!err) { res.send(doc); }
@@ -65,9 +72,15 @@ router.post('/', (req, res) => {
 router.put('/liked&id=:id', (req, res) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with given id : ${req.params.id}`);
-
-    Confession.findByIdAndUpdate(req.params.id, { $inc: { likes: 1 } }, { new: true }, (err, doc) => {
-        if (!err) { res.send(doc); }
+    Confession.findByIdAndUpdate(req.params.id, { $inc: { 'reactions.like': 1 } }, { new: true }, (err, doc) => {
+        if (!err) {
+            var reactionCount = doc.reactions.like + doc.reactions.dislike + doc.reactions.sad + doc.reactions.angry + doc.reactions.funny;
+            Confession.findByIdAndUpdate(req.params.id, { $set: {reactionCount: reactionCount} }, { new: true }, (err, doc) => {
+                if (!err) { res.send(doc); }
+                else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
+            });
+            //res.send(doc); 
+        }
         else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
     });
 });
@@ -76,7 +89,7 @@ router.put('/unliked&id=:id', (req, res) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with given id : ${req.params.id}`);
 
-    Confession.findByIdAndUpdate(req.params.id, { $inc: { likes: -1 } }, { new: true }, (err, doc) => {
+    Confession.findByIdAndUpdate(req.params.id, { $inc: { 'reactions.like': -1 } }, { new: true }, (err, doc) => {
         if (!err) { res.send(doc); }
         else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
     });
