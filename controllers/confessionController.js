@@ -6,7 +6,7 @@ const { Confession } = require('../models/confession');
 
 // => localhost:3000/confession/
 router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
-    var limit = 10;
+    var limit = 5;
     var skip = (req.params.pageNumber-1) * limit;
     var responseObj = {
         totalPage : null,
@@ -19,7 +19,6 @@ router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
     } else {
         searchQuery = { status: 'approved'};
     }
-    console.log(searchQuery);
     Confession.countDocuments(searchQuery , (err, count) => {
         if (!err) { 
             responseObj.totalPage = Math.ceil(count / limit);
@@ -40,7 +39,13 @@ router.get('/single&id=:id', (req, res) => {
         return res.status(400).send(`No record with given id : ${req.params.id}`);
 
     Confession.findById(req.params.id, (err, doc) => {
-        if (!err) { res.send(doc); }
+        if (!err) {
+            if(doc.status === 'approved') {
+                res.send(doc);
+            } else {
+                res.send({status: doc.status});
+            }
+        }
         else { console.log('Error in Retriving Confession :' + JSON.stringify(err, undefined, 2)); }
     });
 });
@@ -64,7 +69,7 @@ router.post('/', (req, res) => {
         reactionCount : 0
     });
     confsn.save((err, doc) => {
-        if (!err) { res.send(doc); }
+        if (!err) { res.send({_id: doc._id}); }
         else { console.log('Error in Confession Save :' + JSON.stringify(err, undefined, 2)); }
     });
 });
@@ -76,7 +81,7 @@ router.put('/liked&id=:id', (req, res) => {
         if (!err) {
             var reactionCount = doc.reactions.like + doc.reactions.dislike + doc.reactions.sad + doc.reactions.angry + doc.reactions.funny;
             Confession.findByIdAndUpdate(req.params.id, { $set: {reactionCount: reactionCount} }, { new: true }, (err, doc) => {
-                if (!err) { res.send(doc); }
+                if (!err) { res.send({reactionCount: doc.reactionCount}); }
                 else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
             });
             //res.send(doc); 
@@ -85,7 +90,7 @@ router.put('/liked&id=:id', (req, res) => {
     });
 });
 
-router.put('/unliked&id=:id', (req, res) => {
+/* router.put('/unliked&id=:id', (req, res) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with given id : ${req.params.id}`);
 
@@ -93,7 +98,7 @@ router.put('/unliked&id=:id', (req, res) => {
         if (!err) { res.send(doc); }
         else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
     });
-});
+}); */
 
 router.post('/comment', (req, res) => {
     if (!ObjectId.isValid(req.body._id))
@@ -106,7 +111,7 @@ router.post('/comment', (req, res) => {
         if (!err) {
             var commentCount = doc.comments.length;
             Confession.findByIdAndUpdate(req.body._id, { $set: {commentCount: commentCount} }, { new: true }, (err, doc) => {
-                if (!err) { res.send(doc); }
+                if (!err) { res.send({commentCount: doc.commentCount, comments: doc.comments}); }
                 else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
             });
             //res.send(doc);
@@ -115,7 +120,7 @@ router.post('/comment', (req, res) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+/* router.put('/:id', (req, res) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with given id : ${req.params.id}`);
 
@@ -128,9 +133,9 @@ router.put('/:id', (req, res) => {
         if (!err) { res.send(doc); }
         else { console.log('Error in Confession Update :' + JSON.stringify(err, undefined, 2)); }
     });
-});
+}); */
 
-router.delete('/:id', (req, res) => {
+/* router.delete('/:id', (req, res) => {
     if (!ObjectId.isValid(req.params.id))
         return res.status(400).send(`No record with given id : ${req.params.id}`);
 
@@ -138,6 +143,6 @@ router.delete('/:id', (req, res) => {
         if (!err) { res.send(doc); }
         else { console.log('Error in Confession Delete :' + JSON.stringify(err, undefined, 2)); }
     });
-});
+}); */
 
 module.exports = router;
