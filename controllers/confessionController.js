@@ -6,7 +6,7 @@ const { Confession } = require('../models/confession');
 
 // => localhost:3000/confession/
 router.get('/paginate&page=:pageNumber&category=:category', (req, res) => {
-    var limit = 5;
+    var limit = 20;
     var skip = (req.params.pageNumber-1) * limit;
     var responseObj = {
         totalPage : null,
@@ -40,10 +40,10 @@ router.get('/single&id=:id', (req, res) => {
 
     Confession.findById(req.params.id, (err, doc) => {
         if (!err) {
-            if(doc.status === 'approved') {
+            if(doc && doc.status === 'approved') {
                 res.send(doc);
             } else {
-                res.send({status: doc.status});
+                res.send({status: 'unapproved'});
             }
         }
         else { console.log('Error in Retriving Confession :' + JSON.stringify(err, undefined, 2)); }
@@ -55,7 +55,7 @@ router.post('/', (req, res) => {
         age: req.body.age,
         sex: req.body.sex,
         content: req.body.content,
-        status: 'approved',
+        status: 'unapproved',
         categories: req.body.categories,
         reactions: {
             like : 0,
