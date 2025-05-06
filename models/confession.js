@@ -9,9 +9,21 @@ const confessionSchema = new mongoose.Schema({
     content: { type: String },
     status: { type: String },
     categories: [ String ],
-    likes: { type: Number },
-    comments : [commentSchema]
+    reactions: {
+        like : { type: Number , default: 0},
+        dislike : { type: Number , default: 0},
+        sad : { type: Number , default: 0},
+        angry : { type: Number , default: 0},
+        funny: { type: Number , default: 0}
+    },
+    comments : [commentSchema],
+    commentCount: { type: Number },
+    reactionCount: { type: Number }
 }, {timestamps: true});
+/* confessionSchema.virtual('commentCountCalculate').get(function() {
+    if(this.comments)
+    return this.comments.length;
+}); */
 var Confession = mongoose.model('Confession', confessionSchema);
 
 module.exports = { Confession };
